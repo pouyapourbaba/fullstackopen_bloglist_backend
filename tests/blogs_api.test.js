@@ -56,6 +56,23 @@ describe("api", () => {
     expect(titles).toContain("blog 3");
   });
 
+  it("should default likes to 0, when this property does not exist", async () => {
+    const newBlog = {
+      title: "blog 3",
+      author: "Samad",
+      url: "URL"
+    };
+
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+
+    const blogsAtEnd = await testHelper.blogsInDb();
+    expect(blogsAtEnd[blogsAtEnd.length - 1].likes).toBe(0);
+  });
+
   afterAll(() => {
     mongoose.connection.close();
   });
