@@ -29,6 +29,12 @@ describe("api", () => {
     expect(response.body.length).toBe(testHelper.initialBlogs.length);
   });
 
+  it("should return objects with a unique identifier created by the DB", async () => {
+    const response = await api.get("/api/blogs");
+    response.body.map(blog => expect(blog._id).toBeDefined());
+    // expect(response.body[0]._id).toBeDefined();
+  });
+
   afterAll(() => {
     mongoose.connection.close();
   });
