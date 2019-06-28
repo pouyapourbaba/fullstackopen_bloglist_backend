@@ -96,3 +96,15 @@ describe("favorite blog", () => {
     expect(result).toEqual(expected);
   });
 });
+
+// tests for mostBlogs
+describe("most blogs", () => {
+  it("should return the author with the maximum blogs", () => {
+    const result = listHelper.mostBlogs(blogs);
+    const expected = {
+      author: "Robert C. Martin",
+      blogs: 3
+    };
+    expect(result).toEqual(expected);
+  });
+});

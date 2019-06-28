@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const dummy = blogs => {
   return 1;
 };
@@ -16,8 +18,23 @@ const favoriteBlog = blogs => {
   return favorite;
 };
 
+const mostBlogs = blogs => {
+  const authors = {};
+  blogs.forEach(blog => {
+    _.has(authors, blog.author)
+      ? (authors[blog.author] += 1)
+      : (authors[blog.author] = 1);
+  });
+
+  const result = _.keys(authors).map(author => ({
+    author: author,
+    blogs: authors[author]
+  }));
+  return result.sort((a, b) => a.blogs < b.blogs)[0];
+};
 module.exports = {
   dummy,
   totalLikes,
-  favoriteBlog
+  favoriteBlog,
+  mostBlogs
 };
