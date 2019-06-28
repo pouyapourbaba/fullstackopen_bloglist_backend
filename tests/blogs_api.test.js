@@ -84,8 +84,23 @@ describe("api", () => {
       .send(newBlog)
       .expect(400);
   });
+});
 
-  afterAll(() => {
-    mongoose.connection.close();
+describe("delete blogs", () => {
+  it("should delete a blog with status code of 204", async () => {
+    const blogsAtStart = await testHelper.blogsInDb();
+    const blogToDelete = blogsAtStart[0];
+
+    await api.delete(`/api/blogs/${blogToDelete._id}`).expect(204);
+
+    const blogsAtEnd = await testHelper.blogsInDb();
+    expect(blogsAtEnd.length).toBe(blogsAtStart.length - 1);
+
+    const titles = blogsAtEnd.map(blog => blog.title);
+    expect(titles).not.toContain(blogToDelete.title);
   });
+});
+
+afterAll(() => {
+  mongoose.connection.close();
 });
