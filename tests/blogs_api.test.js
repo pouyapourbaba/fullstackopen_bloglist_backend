@@ -101,6 +101,25 @@ describe("delete blogs", () => {
   });
 });
 
+describe("update blogs", () => {
+  it("should update a blog with status code of 200", async () => {
+    const blogsAtStart = await testHelper.blogsInDb();
+    const blogToUpdate = blogsAtStart[0];
+    blogToUpdate.title = "updated";
+
+    await api
+      .put(`/api/blogs/${blogToUpdate._id}`)
+      .send()
+      .expect(200);
+
+    const blogsAtEnd = await testHelper.blogsInDb();
+    expect(blogsAtEnd.length).toBe(blogsAtStart.length);
+
+    const titles = blogsAtEnd.map(blog => blog.title);
+    expect(titles).not.toContain(blogToUpdate.title);
+  });
+});
+
 afterAll(() => {
   mongoose.connection.close();
 });
