@@ -73,6 +73,18 @@ describe("api", () => {
     expect(blogsAtEnd[blogsAtEnd.length - 1].likes).toBe(0);
   });
 
+  it("it should return 400 bad request if the title and the url props are missing", async () => {
+    const newBlog = {
+      author: "Samad",
+      likes: 15
+    };
+
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(400);
+  });
+
   afterAll(() => {
     mongoose.connection.close();
   });
