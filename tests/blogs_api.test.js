@@ -35,6 +35,27 @@ describe("api", () => {
     // expect(response.body[0]._id).toBeDefined();
   });
 
+  it("should successfully add a valid blog", async () => {
+    const newBlog = {
+      title: "blog 3",
+      author: "Samad",
+      url: "URL",
+      likes: 15
+    };
+
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+
+    const blogsAtEnd = await testHelper.blogsInDb();
+    expect(blogsAtEnd.length).toBe(testHelper.initialBlogs.length + 1);
+
+    const titles = blogsAtEnd.map(blog => blog.title);
+    expect(titles).toContain("blog 3");
+  });
+
   afterAll(() => {
     mongoose.connection.close();
   });
