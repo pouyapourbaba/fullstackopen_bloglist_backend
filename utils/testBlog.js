@@ -57,14 +57,14 @@ const blogs = [
 const authors = {};
 blogs.forEach(blog => {
   _.has(authors, blog.author)
-    ? (authors[blog.author] += 1)
-    : (authors[blog.author] = 1);
+    ? (authors[blog.author] += blog.likes)
+    : (authors[blog.author] = blog.likes);
 });
 
 const result = _.keys(authors).map(author => ({
   name: author,
-  blogs: authors[author]
+  likes: authors[author]
 }));
-console.log(result.sort((a, b) => a.blogs < b.blogs)[0]);
+console.log(result.sort((a, b) => a.likes < b.likes)[0]);
 
 // console.log("authorsArr ", result[0]);
