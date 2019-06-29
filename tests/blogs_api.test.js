@@ -2,11 +2,12 @@ const mongoose = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
 const Blog = require("../models/blog");
+const User = require("../models/user");
 const testHelper = require("./test_helper");
 
 const api = supertest(app);
 
-describe("api", () => {
+describe("blog api", () => {
   beforeEach(async () => {
     await Blog.deleteMany({});
 
@@ -31,7 +32,7 @@ describe("api", () => {
 
   it("should return objects with a unique identifier created by the DB", async () => {
     const response = await api.get("/api/blogs");
-    response.body.map(blog => expect(blog._id).toBeDefined());
+    response.body.map(blog => expect(blog.id).toBeDefined());
     // expect(response.body[0]._id).toBeDefined();
   });
 
@@ -91,7 +92,7 @@ describe("delete blogs", () => {
     const blogsAtStart = await testHelper.blogsInDb();
     const blogToDelete = blogsAtStart[0];
 
-    await api.delete(`/api/blogs/${blogToDelete._id}`).expect(204);
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
 
     const blogsAtEnd = await testHelper.blogsInDb();
     expect(blogsAtEnd.length).toBe(blogsAtStart.length - 1);
@@ -118,6 +119,71 @@ describe("update blogs", () => {
     const titles = blogsAtEnd.map(blog => blog.title);
     expect(titles).not.toContain(blogToUpdate.title);
   });
+});
+
+describe("User Registration", () => {
+  beforeEach(async () => {
+    await User.deleteMany({});
+
+    const userObj1 = new User(testHelper.initialUsers[0]);
+    await userObj1.save();
+  });
+
+  // test the required fields
+  it("the request must have username, and password. Return 400 if it does not", async () => {
+    const user = {
+      name: "pouya"
+    };
+
+    await api
+      .post("/api/users")
+      .send(user)
+      .expect(400);
+  });
+
+  // test the unique username
+  it("should return 400 if the username already exists in the DB", async () => {
+    const newUser = {
+      username: "pouya",
+      name: "name",
+      password: "secret"
+    };
+
+    await api
+      .post("/api/users")
+      .send(newUser)
+      .expect(400);
+  });
+
+  // test if the user is registered given the correct data
+  it("should save the new user to the DB", async () => {
+    const usersAtStart = await testHelper.usersInDb();
+    const newUser = {
+      username: "Hamid",
+      name: "Hamid",
+      password: "password"
+    };
+
+    await api
+      .post("/api/users")
+      .send(newUser)
+      .expect(200);
+
+    const usersAtEnd = await testHelper.usersInDb();
+    expect(usersAtEnd.length).toBe(usersAtStart.length + 1);
+
+    expect(usersAtEnd.map(user => user.username)).toContain(newUser.username);
+  });
+
+  // test the length of username and password
+  it("should return 400 if username and password are less than 3 chars long", async () => {
+    const newUser = {
+      username: "uu",
+      password: "pp"
+    }
+
+    await api.post("/api/users").send(newUser).expect(400)
+  })
 });
 
 afterAll(() => {
